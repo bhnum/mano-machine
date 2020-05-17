@@ -1,0 +1,65 @@
+﻿<?xml version="1.0"?>
+
+<!--https://github.com/icsharpcode/AvalonEdit/blob/master/ICSharpCode.AvalonEdit/Highlighting/Resources/ModeV2.xsd-->
+
+<SyntaxDefinition name="MAMS" extensions=".masm"
+        xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Color name="Comment" foreground="Green" />
+  <Color name="Keyword" foreground="Blue" />
+  <Color name="Directive" foreground="Teal" />
+  <Color name="Number" foreground="Purple" />
+  <Color name="Label" foreground="Orange" />
+
+  <!-- This is the main ruleset. -->
+  <RuleSet>
+    <Span color="Comment" begin="/" />
+
+    <Rule color="Label">
+      .+?(?=,)
+    </Rule>
+
+    <Import ruleSet="kewordsRuleSet" />
+    
+    <Rule color="Number">
+      \b[0-9]+\b
+    </Rule>
+  </RuleSet>
+  
+  <RuleSet ignoreCase="true" name="kewordsRuleSet">
+    <Keywords color="Keyword">
+      <Word>AND</Word>
+      <Word>ADD</Word>
+      <Word>LDA</Word>
+      <Word>STA</Word>
+      <Word>BUN</Word>
+      <Word>BSA</Word>
+      <Word>ISZ</Word>
+      <Word> I</Word>
+      <Word>CLA</Word>
+      <Word>CLE</Word>
+      <Word>CMA</Word>
+      <Word>CME</Word>
+      <Word>CIR</Word>
+      <Word>CIR</Word>
+      <Word>INC</Word>
+      <Word>SPA</Word>
+      <Word>SNA</Word>
+      <Word>SZA</Word>
+      <Word>SZE</Word>
+      <Word>HLT</Word>
+      <Word>INP</Word>
+      <Word>OUT</Word>
+      <Word>SKI</Word>
+      <Word>SKO</Word>
+      <Word>ION</Word>
+      <Word>IOF</Word>
+    </Keywords>
+  
+    <Keywords color="Directive">
+      <Word>ORG</Word>
+      <Word>HEX</Word>
+      <Word>DEC</Word>
+      <Word>END</Word>
+    </Keywords>
+  </RuleSet>
+</SyntaxDefinition>
