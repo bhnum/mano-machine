@@ -17,7 +17,10 @@ namespace ManoMachine
             InitializeComponent();
 
             Path = romPath;
+            simulator = new Simulator(romPath);
         }
+
+        Simulator simulator;
 
         public string Path { get; set; }
     }

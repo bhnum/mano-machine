@@ -154,12 +154,20 @@ namespace ManoMachine
                             throw new ParserError("Invalid number of operands", linenumber);
 
                         address = isplits[1];
-                        try
-                        {
-                            int temp = Convert.ToUInt16(address, 16);
-                            pureaddress = true;
-                        }
-                        catch (Exception) { }
+                        if (opcode == "org" || opcode == "hex")
+                            try
+                            {
+                                int temp = Convert.ToUInt16(address, 16);
+                                pureaddress = true;
+                            }
+                            catch (Exception) { }
+                        else if (opcode == "dec")
+                            try
+                            {
+                                int temp = Convert.ToInt32(address, 10);
+                                pureaddress = true;
+                            }
+                            catch (Exception) { }
                     }
                     directive = true;
                 }

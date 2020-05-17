@@ -99,8 +99,10 @@
     <Compile Include="MachineState.cs" />
     <Compile Include="MasmParser.cs" />
     <Compile Include="Massembler.cs" />
+    <Compile Include="MicroOperation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Simulator.cs" />
     <Compile Include="SimulatorBox.cs">
       <SubType>UserControl</SubType>
     </Compile>

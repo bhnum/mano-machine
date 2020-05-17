@@ -175,7 +175,10 @@ namespace ManoMachine
                     {
                         ushort resolvedAddress = 0;
                         if (pureaddress)
-                            resolvedAddress = Convert.ToUInt16(address, opcode == "hex" ? 16 : 10);
+                            if (opcode == "hex")
+                                resolvedAddress = Convert.ToUInt16(address, 16);
+                            else
+                                resolvedAddress = unchecked((ushort)Convert.ToInt32(address, 10));
                         else
                         {
                             if (!table.Contains(address))
