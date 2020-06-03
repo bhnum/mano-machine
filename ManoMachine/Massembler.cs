@@ -43,6 +43,20 @@ namespace ManoMachine
             ["iof"] = 0xF040,
         };
 
+        public struct OutputMemoryUnit
+        {
+            public OutputMemoryUnit(ushort content, string comment = "", bool written = true)
+            {
+                Content = content;
+                Written = written;
+                Comment = comment;
+            }
+
+            public ushort Content { get; set; }
+            public bool Written { get; set; }
+            public string Comment { get; set; }
+        }
+
         public Massembler(string path)
         {
             parser = new MasmParser(path);
@@ -53,15 +67,16 @@ namespace ManoMachine
         LabelTable table;
 
         public int MaxErrors { get; set; } = 100;
-        public int MaxProgramSize { get; set; } = 1 << 12 - 1;
+        public int MemorySize { get; set; } = 1 << 12 - 1;
 
         public LabelTable Table { get; set; }
+        public OutputMemoryUnit[] OutputMemory { get; set; }
 
-        public bool PassOne(out List<ParserError> errors)
+        public bool PassOne(List<ParserError> errors)
         {
             table.Clear();
             parser.Reset();
-            errors = new List<ParserError>();
+            errors.Clear();
             bool endoccurred = false;
 
             while (true)
@@ -106,13 +121,7 @@ namespace ManoMachine
 
                 if (opcode == "org")
                 {
-                    if (pureaddress)
-                        table.SetAddress(Convert.ToUInt16(address, 16));
-                    else
-                    {
-                        errors.Add(new ParserError($"ORG cannot have a label operand", linenumber));
-                        continue;
-                    }
+                    table.SetAddress(parser.FromHex(address));
                 }
 
                 if (opcode == "end")
@@ -124,89 +133,84 @@ namespace ManoMachine
 
             if (!endoccurred)
             {
-                errors.Add(new ParserError("END directive not found", parser.Index - 1));
+                errors.Add(new ParserError("END directive not found", parser.Index));
             }
-
-            if (table.CurrentAddress >= MaxProgramSize)
-                errors.Add(new ParserError($"Program size {table.CurrentAddress} exceeds memory limit {MaxProgramSize}", parser.Index - 1));
 
             return errors.Count == 0;
         }
 
-        public bool Assemble(out List<ParserError> errors, string output)
+        public bool PassTwo(List<ParserError> errors)
         {
-            if (!PassOne(out errors))
-                return false;
+            OutputMemory = new OutputMemoryUnit[MemorySize];
 
             int last_pc = table.CurrentAddress;
 
             int pc = 0;
             parser.Reset();
-            using (StreamWriter writer = new StreamWriter(output, false, Encoding.UTF8))
+
+            while (parser.Advance(out int linenumber, out _, out var opcode, out var address, out var pureaddress, out var directive, out var indirect))
             {
-                while (parser.Advance(out int linenumber, out _, out var opcode, out var address, out var pureaddress, out var directive, out var indirect))
+                if (opcode == null)
+                    continue;
+
+                ushort instruction = 0;
+                if (MemoryOpcodes.ContainsKey(opcode))
                 {
-                    if (opcode == null)
-                        continue;
-
-                    ushort instruction = 0;
-                    if (MemoryOpcodes.ContainsKey(opcode))
-                    {
-                        ushort resolvedAddress = 0;
-                        if (pureaddress)
-                            resolvedAddress = Convert.ToUInt16(address, 16);
-                        else
-                        {
-                            if (!table.Contains(address))
-                                errors.Add(new ParserError($"Label {address} does not exist. " +
-                                    $"If a lable was not intended, add a leading 0 to the address operand.", linenumber));
-                            else
-                                resolvedAddress = (ushort)table[address];
-                        }
-                        instruction = (ushort)(MemoryOpcodes[opcode] | resolvedAddress);
-                        if (indirect)
-                            instruction |= 0x8000;
-                    }
-                    else if (RegisterOpcodes.ContainsKey(opcode))
-                        instruction = RegisterOpcodes[opcode];
-                    else if (IOOpcodes.ContainsKey(opcode))
-                        instruction = IOOpcodes[opcode];
-                    else if (opcode == "hex" || opcode == "dec")
-                    {
-                        ushort resolvedAddress = 0;
-                        if (pureaddress)
-                            if (opcode == "hex")
-                                resolvedAddress = Convert.ToUInt16(address, 16);
-                            else
-                                resolvedAddress = unchecked((ushort)Convert.ToInt32(address, 10));
-                        else
-                        {
-                            if (!table.Contains(address))
-                                errors.Add(new ParserError($"Label {address} does not exist", linenumber));
-                            else
-                                resolvedAddress = (ushort)table[address];
-                        }
-                        instruction = resolvedAddress;
-                    }
-                    else if (opcode == "end")
-                        break;
-
-                    if (opcode == "org")
-                    {
-                        int count = Convert.ToUInt16(address, 16) - pc;
-                        if (count < 0)
-                            errors.Add(new ParserError("Memory overwrite", linenumber));
-                        for (int i = 0; i < count; i++)
-                        {
-                            pc++;
-                            writer.WriteLine($"{instruction:X4}");
-                        }
-                    }
+                    ushort resolvedAddress = 0;
+                    if (pureaddress)
+                        resolvedAddress = parser.FromHex(address);
                     else
                     {
-                        pc++;
-                        writer.WriteLine($"{instruction:X4} /\t{parser.OriginalLines[linenumber]}");
+                        if (!table.Contains(address))
+                            errors.Add(new ParserError($"Label {address} does not exist. " +
+                                $"If a lable is not intended, add a leading 0 to the address operand.", linenumber));
+                        else
+                            resolvedAddress = (ushort)table[address];
                     }
+                    instruction = (ushort)(MemoryOpcodes[opcode] | resolvedAddress);
+                    if (indirect)
+                        instruction |= 0x8000;
+                }
+                else if (RegisterOpcodes.ContainsKey(opcode))
+                    instruction = RegisterOpcodes[opcode];
+                else if (IOOpcodes.ContainsKey(opcode))
+                    instruction = IOOpcodes[opcode];
+                else if (opcode == "hex" || opcode == "dec")
+                {
+                    ushort resolvedAddress = 0;
+                    if (pureaddress)
+                        if (opcode == "hex")
+                            resolvedAddress = parser.FromHex(address);
+                        else
+                            resolvedAddress = parser.FromDec(address);
+                    else
+                    {
+                        if (!table.Contains(address))
+                            errors.Add(new ParserError($"Label {address} does not exist", linenumber));
+                        else
+                            resolvedAddress = (ushort)table[address];
+                    }
+                    instruction = resolvedAddress;
+                }
+                else if (opcode == "end")
+                    break;
+
+                if (opcode == "org")
+                {
+                    pc = parser.FromHex(address);
+                }
+                else
+                {
+                    if (pc >= MemorySize)
+                    {
+                        errors.Add(new ParserError($"Program size {table.CurrentAddress} exceeds memory limit {MemorySize}", linenumber));
+                        return false;
+                    }
+                    if (OutputMemory[pc].Written)
+                        errors.Add(new ParserError($"Memory overwrite at address 0x{pc:X3}", linenumber));
+
+                    OutputMemory[pc] = new OutputMemoryUnit(instruction, parser.OriginalLines[linenumber]);
+                    pc++;
                 }
             }
 
@@ -214,6 +218,35 @@ namespace ManoMachine
                 throw new InvalidOperationException($"Program counter mismatch ({last_pc} != {pc})");
 
             return errors.Count == 0;
+        }
+
+        public bool Assemble(out List<ParserError> errors, string output)
+        {
+            errors = new List<ParserError>();
+
+            if (!PassOne(errors))
+                return false;
+
+            if (!PassTwo(errors))
+                return false;
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(output, append: false, Encoding.UTF8))
+                {
+                    for (int i = 0; i < MemorySize; i++)
+                    {
+                        writer.WriteLine($"{OutputMemory[i].Content:X4} /\t{OutputMemory[i].Comment}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errors.Add(new ParserError(ex.Message, 0));
+                return false;
+            }
+
+            return true;
         }
     }
 }

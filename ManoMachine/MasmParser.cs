@@ -65,6 +65,53 @@ namespace ManoMachine
 
         public List<string> OriginalLines { get; set; }
 
+        private bool IsLabel(string str)
+        {
+            if (!IsHex(str))
+                return true;
+
+            if (!str.TrimStart().StartsWith("0"))
+                return true;
+
+            return false;
+        }
+
+        private bool IsHex(string str)
+        {
+            try
+            {
+                Convert.ToInt32(str, 16);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsDec(string str)
+        {
+            try
+            {
+                Convert.ToInt32(str, 10);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public ushort FromHex(string str)
+        {
+            return unchecked((ushort)Convert.ToInt32(str, 16));
+        }
+
+        public ushort FromDec(string str)
+        {
+            return unchecked((ushort)Convert.ToInt32(str, 10));
+        }
+
         public void Reset()
         {
             Index = 0;
@@ -115,13 +162,7 @@ namespace ManoMachine
                         throw new ParserError("Invalid number of operands", linenumber);
 
                     address = isplits[1];
-                    if (address[0] == 0)
-                        try
-                        {
-                            int temp = Convert.ToUInt16(address, 16);
-                            pureaddress = true;
-                        }
-                        catch (Exception) { }
+                    pureaddress = !IsLabel(address);
 
                     if (isplits.Length == 3)
                     {
@@ -154,20 +195,16 @@ namespace ManoMachine
                             throw new ParserError("Invalid number of operands", linenumber);
 
                         address = isplits[1];
-                        if (opcode == "org" || opcode == "hex")
-                            try
-                            {
-                                int temp = Convert.ToUInt16(address, 16);
-                                pureaddress = true;
-                            }
-                            catch (Exception) { }
+                        if (opcode == "org")
+                        {
+                            if (!IsHex(address))
+                                throw new ParserError("ORG cannot have a label operand", linenumber);
+                            pureaddress = true;
+                        }
+                        if (opcode == "hex")
+                            pureaddress = IsHex(address);
                         else if (opcode == "dec")
-                            try
-                            {
-                                int temp = Convert.ToInt32(address, 10);
-                                pureaddress = true;
-                            }
-                            catch (Exception) { }
+                            pureaddress = IsDec(address);
                     }
                     directive = true;
                 }

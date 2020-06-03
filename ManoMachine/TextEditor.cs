@@ -19,6 +19,9 @@ namespace ManoMachine
 {
     public partial class TextEditor : UserControl
     {
+        // https://stackoverflow.com/a/17979246
+        public char ErrorIndicator { get; set; } = '\u200c';
+
         public TextEditor(string path = "")
         {
             InitializeComponent();
@@ -45,7 +48,9 @@ namespace ManoMachine
 
         public string Path { get; set; }
 
-        public void Open(string path)
+        public Editor Editor => editor;
+
+        public bool Open(string path)
         {
             try
             {
@@ -57,11 +62,15 @@ namespace ManoMachine
                 MessageBox.Show($"Cannot open {path}! Error message:\n\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logger.Log(ex.ToString());
+                return false;
             }
+            return true;
         }
 
-        public void Save(string path)
+        public bool Save(string path)
         {
+            ClearErrors();
+
             try
             {
                 editor.Save(path);
@@ -72,8 +81,37 @@ namespace ManoMachine
                 MessageBox.Show($"Cannot save {path}! Error message:\n\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logger.Log(ex.ToString());
+                return true;
+            }
+            return false;
+        }
+
+        public void ClearErrors()
+        {
+            while (true)
+            {
+                int offset = editor.Document.IndexOf(ErrorIndicator, 0, editor.Document.TextLength);
+                if (offset == -1)
+                    break;
+                editor.Document.Replace(offset, 1, "");
             }
         }
+
+        public void AddError(int lineNumber)
+        {
+            var line = editor.Document.GetLineByNumber(lineNumber);
+            editor.Document.Insert(line.Offset, ErrorIndicator.ToString());
+        }
+
+        //public void ClearLabels()
+        //{
+            
+        //}
+
+        //public void AddLabel(string str)
+        //{
+            
+        //}
 
         public void SelectLine(int lineNumber)
         {
@@ -82,8 +120,7 @@ namespace ManoMachine
             //Get the line number based off the offset.
             var line = editor.Document.GetLineByNumber(lineNumber);
             //Select the text.
-            editor.SelectionStart = line.Offset;
-            editor.SelectionLength = line.Length;
+            editor.Select(line.Offset, line.Length);
             //Scroll the textEditor to the selected line.
             var visualTop = editor.TextArea.TextView.GetVisualTopByDocumentLine(lineNumber);
             editor.ScrollToVerticalOffset(visualTop); 

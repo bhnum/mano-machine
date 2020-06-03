@@ -21,6 +21,41 @@ namespace ManoMachine
             newMenuItem_Click(this, EventArgs.Empty);
         }
 
+        bool GetCurrentEditor(out TextEditor editor)
+        {
+            editor = null;
+            var currentTab = tabControl.SelectedTab;
+            if (currentTab == null)
+                return false;
+            if (currentTab.Tag as string != "editor")
+                return false;
+
+            editor = (TextEditor)currentTab.Controls["editor"];
+            return true;
+        }
+
+        bool DoSaveAs(TextEditor editor)
+        {
+            saveDialog.FileName = editor.Path;
+            if (saveDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = saveDialog.FileName;
+                editor.Path = path;
+
+                tabControl.SelectedTab.Text = Path.GetFileName(path);
+                tabControl.SelectedTab.ToolTipText = path;
+
+                editor.Save(path);
+                return true;
+            }
+            return false;
+        }
+
+        void StartSemulation(string path)
+        {
+
+        }
+
         private void newMenuItem_Click(object sender, EventArgs e)
         {
             TabPage newpage = new TabPage("Untitled") {
@@ -61,50 +96,22 @@ namespace ManoMachine
 
         private void saveMenuItem_Click(object sender, EventArgs e)
         {
-            var current = tabControl.SelectedTab;
-            if (current == null)
+            if (!GetCurrentEditor(out var editor))
                 return;
-            if (current.Tag as string != "editor")
-                return;
-
-            var editor = (TextEditor)current.Controls["editor"];
 
             string path = editor.Path;
             if (string.IsNullOrWhiteSpace(path))
-            {
-                saveDialog.FileName = "Untitled";
-                if (saveDialog.ShowDialog(this) != DialogResult.OK)
-                    return;
-                path = saveDialog.FileName;
-                editor.Path = path;
-
-                current.Text = Path.GetFileName(path);
-                current.ToolTipText = path;
-            }
-            editor.Save(path);
+                DoSaveAs(editor);
+            else
+                editor.Save(path);
         }
 
         private void saveAsMenuItem_Click(object sender, EventArgs e)
         {
-            var current = tabControl.SelectedTab;
-            if (current == null)
-                return;
-            if (current.Tag as string != "editor")
+            if (!GetCurrentEditor(out var editor))
                 return;
 
-            var editor = (TextEditor)current.Controls["editor"];
-
-            saveDialog.FileName = editor.Path;
-            if (saveDialog.ShowDialog(this) == DialogResult.OK)
-            {
-                string path = saveDialog.FileName;
-                editor.Path = path;
-
-                current.Text = Path.GetFileName(path);
-                current.ToolTipText = path;
-
-                editor.Save(path);
-            }
+            DoSaveAs(editor);
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -172,62 +179,63 @@ namespace ManoMachine
 
         private void assembleAndRunMenuItem_Click(object sender, EventArgs e)
         {
-            var current = tabControl.SelectedTab;
-            if (current == null)
+            if (!GetCurrentEditor(out var editor))
                 return;
-            if (current.Tag as string != "editor")
-                return;
-
-            var editor = (TextEditor)current.Controls["editor"];
 
             string path = editor.Path;
             if (string.IsNullOrWhiteSpace(path))
             {
-                saveDialog.FileName = "Untitled";
-                if (saveDialog.ShowDialog(this) != DialogResult.OK)
+                if (!DoSaveAs(editor))
                     return;
-                path = saveDialog.FileName;
-                editor.Path = path;
-
-                current.Text = Path.GetFileName(path);
-                current.ToolTipText = path;
             }
-            editor.Save(path);
+            else
+                editor.Save(path);
 
             string output = Path.ChangeExtension(path, ".mrom");
             statusLabel.Text = $"Assembling {output}";
             UseWaitCursor = true;
 
             Massembler bler = new Massembler(editor.Path);
-            if (bler.Assemble(out var errors, output))
-            {
-                statusLabel.Text = "Assembled successfully";
+            bool success = bler.Assemble(out var errors, output);
 
-                // run sim
+            PopulateErrors(editor, errors);
+
+            UseWaitCursor = false;
+
+            if (success)
+            {
+                statusLabel.Text = $"Assemble succeeded - {errors.Count} errors";
+
+                StartSemulation(output);
             }
             else
             {
                 editor.SelectLine(errors[0].LineNumber + 1);
 
-                statusLabel.Text = "Assemble failed";
+                statusLabel.Text = $"Assemble failed - {errors.Count} errors";
             }
-
-            PopulateErrorList(errors);
-            errorsGridView.Tag = current;
-
-            UseWaitCursor = false;
         }
 
-        void PopulateErrorList(List<ParserError> errors)
+        void PopulateErrors(TextEditor editor, List<ParserError> errors)
         {
             errorsGridView.Rows.Clear();
             for (int i = 0; i < errors.Count; i++)
                 errorsGridView.Rows.Add(errors[i].Message, errors[i].LineNumber + 1);
+            errorsGridView.Tag = tabControl.SelectedTab;
+
+            editor.ClearErrors();
+            for (int i = 0; i < errors.Count; i++)
+                editor.AddError(errors[i].LineNumber + 1);
         }
 
         private void runFromFileMenuItem_Click(object sender, EventArgs e)
         {
+            if (openMromDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                string path = openDialog.FileName;
 
+                StartSemulation(path);
+            }
         }
 
         private void aboutMenuItem_Click(object sender, EventArgs e)
@@ -246,6 +254,9 @@ namespace ManoMachine
 
         private void errorsGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (e.RowIndex < 0)
+                return;
+
             TabPage tab = (TabPage)errorsGridView.Tag;
             if (tab == null)
                 return;

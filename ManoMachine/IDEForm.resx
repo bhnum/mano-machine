@@ -137,14 +137,20 @@
         AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
         LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAACZTeXN0
         ZW0uV2luZG93cy5Gb3Jtcy5JbWFnZUxpc3RTdHJlYW1lcgEAAAAERGF0YQcCAgAAAAkDAAAADwMAAABS
-        AQAAAk1TRnQBSQFMAwEBAAEYAQABGAEAAQgBAAEKAQAE/wEhAQAI/wFCAU0BNgcAATYDAAEoAwABIAMA
+        AQAAAk1TRnQBSQFMAwEBAAEgAQABIAEAAQgBAAEKAQAE/wEhAQAI/wFCAU0BNgcAATYDAAEoAwABIAMA
         AQoDAAEBAQABIAYAAQUSAAMYASEDMQFPEAADMQFPAxcBIGAAAzIBUAMAAf4DQQFyCAADQQFyAwAB/gMx
-        AU9kAANAAXEDAAH/A0MBeAM/AXADAAH/A0MBeWwAA0ABcQMAAf4DAAH+A0ABcXAAA0ABcQMAAf4DAAH+
-        A0ABcWwAAz8BcAMAAf8DQwF4Az8BcAMAAf8DQwF4ZAADMgFQAwAB/gNBAXIIAANBAXIDAAH+AzEBT2AA
+        AU9kAANAAXEDAAH/A0MBeANAAXADAAH/A0QBeWwAA0ABcQMAAf4DAAH+A0ABcXAAA0ABcQMAAf4DAAH+
+        A0ABcWwAA0ABcAMAAf8DQwF4A0ABcAMAAf8DQwF4ZAADMgFQAwAB/gNBAXIIAANBAXIDAAH+AzEBT2AA
         AxgBIQMxAU8QAAMyAVADGAEh/wBhAAFCAU0BPgcAAT4DAAEoAwABIAMAAQoDAAEBAQABAQUAASgXAAP/
         AQABPAMAARgDAAGBAwABwwMAAcMDAAGBAwABGAMAATwDAAH/AwAB/wMACw==
 </value>
   </data>
+  <metadata name="descriptionColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="lineCulomn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <metadata name="descriptionColumn.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
