@@ -209,7 +209,7 @@ namespace ManoMachine
                     }
                     else
                     {
-                        if (isplits.Length > 2)
+                        if (isplits.Length != 2)
                             throw new ParserError("Invalid number of operands", linenumber);
 
                         address = isplits[1];
