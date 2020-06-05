@@ -139,7 +139,7 @@ namespace ManoMachine
 
             if (!endoccurred)
             {
-                errors.Add(new ParserError("END directive not found", parser.Index));
+                errors.Add(new ParserError("END directive not found", Math.Max(parser.Index - 1, 1)));
             }
 
             return errors.Count == 0;

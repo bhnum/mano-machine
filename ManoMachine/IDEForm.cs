@@ -206,14 +206,11 @@ namespace ManoMachine
 
             string output = Path.ChangeExtension(path, ".mrom");
             statusLabel.Text = $"Assembling {output}";
-            UseWaitCursor = true;
 
             Massembler bler = new Massembler(editor.Path);
             bool success = bler.Assemble(out var errors, output);
 
             PopulateErrors(editor, errors);
-
-            UseWaitCursor = false;
 
             if (success)
             {
