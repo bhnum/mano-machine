@@ -10,11 +10,12 @@ namespace ManoMachine
     {
         public MachineState()
         {
+            Memory = new ushort[0x1000];
         }
 
         public ushort[] Memory { get; set; }
 
-        public ushort SC { get; set; }
+        public byte SC { get; set; }
         public ushort PC { get; set; } = 0x100;
         public ushort AR { get; set; }
         public ushort IR { get; set; }
@@ -30,7 +31,7 @@ namespace ManoMachine
         public bool R { get; set; }
         public bool IEN { get; set; }
         public bool FGI { get; set; }
-        public bool FGO { get; set; }
+        public bool FGO { get; set; } = true;
 
         // helpers
         public byte D => (byte)((IR >> 12) & 0b111);

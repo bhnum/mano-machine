@@ -34,9 +34,6 @@ namespace ManoMachine
 
         public MasmParser(string path)
         {
-            lines = new List<(int linenumber, string text)>();
-            OriginalLines = new List<string>();
-
             int i = 0;
             foreach (var temp_line in File.ReadLines(path))
             {
@@ -54,7 +51,28 @@ namespace ManoMachine
             }
         }
 
-        private List<(int linenumber, string text)> lines;
+        public MasmParser(TextReader reader)
+        {
+            for (int i = 0; ; i++)
+            {
+                string temp_line = reader.ReadLine();
+                if (temp_line == null)
+                    break;
+
+                string line = temp_line;
+
+                // remove comments and empty lines
+                if (line.Contains('/'))
+                    line = temp_line.Substring(0, temp_line.IndexOf('/'));
+
+                if (!string.IsNullOrWhiteSpace(line))
+                    lines.Add((i, line));
+
+                OriginalLines.Add(temp_line);
+            }
+        }
+
+        private List<(int linenumber, string text)> lines = new List<(int linenumber, string text)>();
         private int index;
 
         public int Index
@@ -63,7 +81,7 @@ namespace ManoMachine
             set { index = value; }
         }
 
-        public List<string> OriginalLines { get; set; }
+        public List<string> OriginalLines { get; set; } = new List<string>();
 
         private bool IsLabel(string str)
         {

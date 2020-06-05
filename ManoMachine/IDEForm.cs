@@ -53,7 +53,18 @@ namespace ManoMachine
 
         void StartSemulation(string path)
         {
+            TabPage newpage = new TabPage($"Simulation of {Path.GetFileName(path)}") {
+                ImageIndex = 0,
+                Tag = "simulator",
+            };
+            newpage.Controls.Add(new SimulatorBox(path) {
+                Name = "simulator",
+                Dock = DockStyle.Fill
+            });
 
+            tabControl.TabPages.Add(newpage);
+            tabControl.SelectedTab = newpage;
+            errorsPanel.Hide();
         }
 
         private void newMenuItem_Click(object sender, EventArgs e)
@@ -69,7 +80,7 @@ namespace ManoMachine
 
             tabControl.TabPages.Add(newpage);
             tabControl.SelectedTab = newpage;
-            tabControl.Show();
+            errorsPanel.Show();
         }
 
         private void openMenuItem_Click(object sender, EventArgs e)
@@ -90,7 +101,7 @@ namespace ManoMachine
 
                 tabControl.TabPages.Add(newpage);
                 tabControl.SelectedTab = newpage;
-                tabControl.Show();
+                errorsPanel.Show();
             }
         }
 
@@ -121,6 +132,7 @@ namespace ManoMachine
                 return;
 
             tabControl.TabPages.Remove(current);
+            tabControl_SelectedIndexChanged(sender, e);
         }
 
         private void exitMenuItem_Click(object sender, EventArgs e)
@@ -148,6 +160,7 @@ namespace ManoMachine
                 {
                     Console.WriteLine("Close clicked on tab {0}", closingTabIndex);
                     tabControl.TabPages.RemoveAt(closingTabIndex);
+                    tabControl_SelectedIndexChanged(sender, e);
                 }
             }
         }
@@ -232,7 +245,7 @@ namespace ManoMachine
         {
             if (openMromDialog.ShowDialog(this) == DialogResult.OK)
             {
-                string path = openDialog.FileName;
+                string path = openMromDialog.FileName;
 
                 StartSemulation(path);
             }
@@ -241,15 +254,6 @@ namespace ManoMachine
         private void aboutMenuItem_Click(object sender, EventArgs e)
         {
             new AboutBox().ShowDialog(this);
-        }
-
-        private void tabControl_TabIndexChanged(object sender, EventArgs e)
-        {
-            var current = tabControl.SelectedTab;
-
-            bool showErrors = current != null && current.Tag as string != "editor";
-
-            errorsPanel.Visible = showErrors;
         }
 
         private void errorsGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -266,6 +270,38 @@ namespace ManoMachine
             int linenumber = (int)errorsGridView.Rows[e.RowIndex].Cells[lineCulomn.Name].Value;
             var editor = (TextEditor)tab.Controls["editor"];
             editor.SelectLine(linenumber);
+        }
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            errorsPanel.Visible = GetCurrentEditor(out _);
+        }
+
+        private void highlightTimer_Tick(object sender, EventArgs e)
+        {
+            if (!GetCurrentEditor(out var editor))
+                return;
+
+            List<string> labels = new List<string>();
+            using (var reader = new StringReader(editor.Editor.Text))
+            {
+                while (true)
+                {
+                    var line = reader.ReadLine();
+                    if (line == null)
+                        break;
+
+                    if (line.Contains('/'))
+                        line = line.Substring(0, line.IndexOf('/'));
+
+                    if (!line.Contains(','))
+                        continue;
+                    var label = line.Substring(0, line.IndexOf(','));
+                    if (!string.IsNullOrWhiteSpace(label))
+                        labels.Add(label);
+                }
+            }
+            editor.SetLabels(labels);
         }
     }
 }

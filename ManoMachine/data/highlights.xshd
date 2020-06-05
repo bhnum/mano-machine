@@ -23,14 +23,22 @@
       .+?(?=,)
     </Rule>
 
-    <Import ruleSet="kewordsRuleSet" />
+    <Import ruleSet="KeywordsRuleSet" />
+
+    <Import ruleSet="LabelsRuleSet" />
     
     <Rule color="Number">
-      \b[0-9]+\b
+      \b[0-9,A-F]+\b
     </Rule>
   </RuleSet>
+
+  <RuleSet name="LabelsRuleSet">
+    <Keywords color="Label">
+      <Word>SomeVeryLongName_______________________________________________________</Word>
+    </Keywords>
+  </RuleSet>
   
-  <RuleSet ignoreCase="true" name="kewordsRuleSet">
+  <RuleSet ignoreCase="true" name="KeywordsRuleSet">
     <Keywords color="Keyword">
       <Word>AND</Word>
       <Word>ADD</Word>
@@ -45,7 +53,7 @@
       <Word>CMA</Word>
       <Word>CME</Word>
       <Word>CIR</Word>
-      <Word>CIR</Word>
+      <Word>CIL</Word>
       <Word>INC</Word>
       <Word>SPA</Word>
       <Word>SNA</Word>

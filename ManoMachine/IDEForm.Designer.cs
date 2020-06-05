@@ -58,6 +58,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.splitter = new System.Windows.Forms.Splitter();
             this.openMromDialog = new System.Windows.Forms.OpenFileDialog();
+            this.highlightTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.tabControl.SuspendLayout();
@@ -158,6 +159,7 @@
             // runFromFileMenuItem
             // 
             this.runFromFileMenuItem.Name = "runFromFileMenuItem";
+            this.runFromFileMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
             this.runFromFileMenuItem.Size = new System.Drawing.Size(191, 22);
             this.runFromFileMenuItem.Text = "R&un From File";
             this.runFromFileMenuItem.Click += new System.EventHandler(this.runFromFileMenuItem_Click);
@@ -217,8 +219,8 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(855, 282);
             this.tabControl.TabIndex = 2;
+            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             this.tabControl.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabControl_Selecting);
-            this.tabControl.TabIndexChanged += new System.EventHandler(this.tabControl_TabIndexChanged);
             this.tabControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseDown);
             // 
             // tabPage1
@@ -279,7 +281,6 @@
             this.errorsGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.errorsGridView.Size = new System.Drawing.Size(855, 98);
             this.errorsGridView.TabIndex = 0;
-            this.errorsGridView.UseWaitCursor = true;
             this.errorsGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.errorsGridView_CellDoubleClick);
             // 
             // descriptionColumn
@@ -322,6 +323,12 @@
             // 
             this.openMromDialog.Filter = "Mano Mashine ROM|*.mrom|All files|*.*";
             // 
+            // highlightTimer
+            // 
+            this.highlightTimer.Enabled = true;
+            this.highlightTimer.Interval = 1000;
+            this.highlightTimer.Tick += new System.EventHandler(this.highlightTimer_Tick);
+            // 
             // IDEForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -335,6 +342,7 @@
             this.Controls.Add(this.statusStrip);
             this.DoubleBuffered = true;
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.Name = "IDEForm";
             this.Text = "Mano Machine IDE";
@@ -381,6 +389,7 @@
         private System.Windows.Forms.DataGridView errorsGridView;
         private System.Windows.Forms.DataGridViewTextBoxColumn descriptionColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn lineCulomn;
+        private System.Windows.Forms.Timer highlightTimer;
     }
 }
 

@@ -118,22 +118,28 @@ namespace ManoMachine
         }
 
         Thread thread;
-        bool stop = false;
+        volatile bool stop = false;
         volatile bool running = false;
 
         public int Ticks { get; set; } = 0;
         public MachineState State { get; set; }
         public bool Running { get => running; }
+        public string[] Comments { get; set; }
+
+        public event Action Stopped;
+        public event Action Halted;
 
         public void LoadRom(string path)
         {
             State = new MachineState();
+            Comments = new string[State.Memory.Length];
 
             int i = 0;
             foreach (var line in File.ReadLines(path))
             {
                 var splits = line.Split('/');
-                State.Memory[i] = Convert.ToUInt16(splits[0], 16);
+                State.Memory[i] = Convert.ToUInt16(splits[0].Trim(), 16);
+                Comments[i] = splits[1];
                 i++;
             }
         }
@@ -146,14 +152,30 @@ namespace ManoMachine
             thread = new Thread(() =>
             {
                 running = true;
+                bool halt = false;
 
                 while (!stop)
                 {
-                    Next();
+                    lock (State)
+                    {
+                        do
+                            Iterate();
+                        while (State.SC != 0 && State.S);
+                        halt = !State.S;
+                    }
+
+                    if (halt)
+                        break;
+                    Thread.Yield();
                 }
+
+                if (halt)
+                    Halted?.Invoke();
+                Stopped?.Invoke();
 
                 running = false;
             });
+            thread.IsBackground = true;
 
             stop = false;
             thread.Start();
@@ -169,15 +191,21 @@ namespace ManoMachine
             if (running)
                 throw new InvalidOperationException("Thread is running");
 
-            Iterate();
+            lock (State)
+                Iterate();
         }
 
         public void Next()
         {
-            do
+            if (running)
+                throw new InvalidOperationException("Thread is running");
+
+            lock (State)
             {
-                Tick();
-            } while (State.SC != 0);
+                do
+                    Iterate();
+                while (State.SC != 0 && State.S);
+            }
         }
 
         public void Reset()
@@ -190,11 +218,29 @@ namespace ManoMachine
             State = state;
         }
 
+        public List<MicroOperation> NextuOps()
+        {
+            var nextuops = new List<MicroOperation>();
+            for (int i = 0; i < uOps.Count; i++)
+            {
+                if (uOps[i].Condition(State))
+                    nextuops.Add(uOps[i]);
+            }
+            return nextuops;
+        }
+
+        // before calling this method make sure State has been locked.
         private void Iterate()
         {
+            var nextuops = NextuOps();
+
+            if (State.S)
+                State.SC++;
+
+            for (int i = 0; i < nextuops.Count; i++)
+                nextuops[i].Apply(State);
+
             Ticks++;
-
-
         }
     }
 }

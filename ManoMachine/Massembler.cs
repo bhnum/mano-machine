@@ -63,13 +63,19 @@ namespace ManoMachine
             table = new LabelTable();
         }
 
+        public Massembler(TextReader reader)
+        {
+            parser = new MasmParser(reader);
+            table = new LabelTable();
+        }
+
         MasmParser parser;
         LabelTable table;
 
         public int MaxErrors { get; set; } = 100;
         public int MemorySize { get; set; } = 1 << 12 - 1;
 
-        public LabelTable Table { get; set; }
+        public LabelTable Table { get => table; }
         public OutputMemoryUnit[] OutputMemory { get; set; }
 
         public bool PassOne(List<ParserError> errors)

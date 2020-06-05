@@ -21,14 +21,14 @@ namespace ManoMachine
                 {
                     using (var reader = new XmlTextReader(fs))
                     {
-                        HighlightingDefinition = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                        HighlightingDefinition = HighlightingLoader.LoadXshd(reader);
                     }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Cannot Load {HighlighterXshdPath}! Syntax highlighting will be unavailable." +
-                    $"\nError is logged in {LogPath}. Error message:\n\n{ex.Message}", 
+                    $"\nError is logged in {LogPath}. Error message:\n\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Logger.Log(ex.ToString());
             }
@@ -36,6 +36,7 @@ namespace ManoMachine
 
         public static string LogPath { get; set; } = "data/log.txt";
         public static string HighlighterXshdPath { get; set; } = "data/highlights.xshd";
-        public static IHighlightingDefinition HighlightingDefinition { get; set; }
+
+        public static XshdSyntaxDefinition HighlightingDefinition { get; set; }
     }
 }
