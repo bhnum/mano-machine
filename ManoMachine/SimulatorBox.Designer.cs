@@ -30,6 +30,10 @@
         {
             this.components = new System.ComponentModel.Container();
             this.memoryGridView = new System.Windows.Forms.DataGridView();
+            this.pcPointerColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.addressColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.contentColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.commentColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -77,10 +81,6 @@
             this.nextButton = new System.Windows.Forms.Button();
             this.runButton = new System.Windows.Forms.CheckBox();
             this.statusTimer = new System.Windows.Forms.Timer(this.components);
-            this.pcPointerColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.addressColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.contentColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.commentColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.memoryGridView)).BeginInit();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -107,6 +107,41 @@
             this.memoryGridView.Size = new System.Drawing.Size(231, 231);
             this.memoryGridView.TabIndex = 0;
             this.memoryGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.memoryGridView_CellValueChanged);
+            // 
+            // pcPointerColumn
+            // 
+            this.pcPointerColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.pcPointerColumn.HeaderText = "   ";
+            this.pcPointerColumn.Name = "pcPointerColumn";
+            this.pcPointerColumn.ReadOnly = true;
+            this.pcPointerColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.pcPointerColumn.Width = 20;
+            // 
+            // addressColumn
+            // 
+            this.addressColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.addressColumn.HeaderText = "Address";
+            this.addressColumn.Name = "addressColumn";
+            this.addressColumn.ReadOnly = true;
+            this.addressColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.addressColumn.Width = 51;
+            // 
+            // contentColumn
+            // 
+            this.contentColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.contentColumn.HeaderText = "Content";
+            this.contentColumn.Name = "contentColumn";
+            this.contentColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.contentColumn.Width = 50;
+            // 
+            // commentColumn
+            // 
+            this.commentColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.commentColumn.HeaderText = "Comment";
+            this.commentColumn.MinimumWidth = 100;
+            this.commentColumn.Name = "commentColumn";
+            this.commentColumn.ReadOnly = true;
+            this.commentColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // label1
             // 
@@ -684,41 +719,6 @@
             this.statusTimer.Enabled = true;
             this.statusTimer.Interval = 10;
             this.statusTimer.Tick += new System.EventHandler(this.statusTimer_Tick);
-            // 
-            // pcPointerColumn
-            // 
-            this.pcPointerColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.pcPointerColumn.HeaderText = "   ";
-            this.pcPointerColumn.Name = "pcPointerColumn";
-            this.pcPointerColumn.ReadOnly = true;
-            this.pcPointerColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.pcPointerColumn.Width = 20;
-            // 
-            // addressColumn
-            // 
-            this.addressColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.addressColumn.HeaderText = "Address";
-            this.addressColumn.Name = "addressColumn";
-            this.addressColumn.ReadOnly = true;
-            this.addressColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.addressColumn.Width = 51;
-            // 
-            // contentColumn
-            // 
-            this.contentColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.contentColumn.HeaderText = "Content";
-            this.contentColumn.Name = "contentColumn";
-            this.contentColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.contentColumn.Width = 50;
-            // 
-            // commentColumn
-            // 
-            this.commentColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.commentColumn.HeaderText = "Comment";
-            this.commentColumn.MinimumWidth = 100;
-            this.commentColumn.Name = "commentColumn";
-            this.commentColumn.ReadOnly = true;
-            this.commentColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
             // 
             // SimulatorBox
             // 

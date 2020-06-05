@@ -163,7 +163,10 @@ namespace ManoMachine
                 runButton.Text = "Start";
 
                 UpdateValues();
-                UpdateNextuOp("- Machine Stopped");
+                if (simulator.State.S)
+                    UpdateNextuOp("- Machine Halted");
+                else
+                    UpdateNextuOp("- Machine Stopped");
                 UpdateNextuOp();
             }
         }
@@ -289,8 +292,7 @@ namespace ManoMachine
 
             lock (simulator.State)
             {
-                ticksCountLabel.Text = $"{simulator.Ticks} Ticks" + 
-                    (simulator.State.S ? "" : ", Machine Halted");
+                ticksCountLabel.Text = $"{simulator.Ticks} Ticks";
 
                 if (inputBuffer.Count > 0)
                     if (!simulator.State.FGI)
