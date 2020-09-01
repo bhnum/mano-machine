@@ -164,9 +164,9 @@ namespace ManoMachine
 
                 UpdateValues();
                 if (simulator.State.S)
-                    UpdateNextuOp("- Machine Halted");
-                else
                     UpdateNextuOp("- Machine Stopped");
+                else
+                    UpdateNextuOp("- Machine Halted");
                 UpdateNextuOp();
             }
         }
